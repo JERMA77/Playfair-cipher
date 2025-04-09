@@ -8,39 +8,40 @@ def existOrNot(char, array):
     return False
 
 def setAlphabet(keyWord):
-    filteredKeyWord = keyWord.replace(' ', '')
+    # Убираем пробелы и делаем все буквы в верхнем регистре
+    filteredKeyWord = keyWord.replace(' ', '').upper()
 
-    alphabet = [0] * 4
-    for k in range(4): 
-        alphabet[k] = [0] * 8  
+    # Создаём пустую таблицу 4x8
+    alphabet = [ [None] * 8 for _ in range(4)]
 
-
+    used_chars = set()  # Множество для отслеживания использованных символов
     num = 0
     i = 0
-    while i < 4:
-        j = 0
-        while j < 8:
-            if num < len(filteredKeyWord):
-                if not(existOrNot(filteredKeyWord[num], alphabet)):
-                    alphabet[i][j] = filteredKeyWord[num]
-                else:
-                    if j == 7:
-                        i -= 1
-                        j -= 1
-                    else:
-                        j -= 1
-                num+=1
-            else:
-                for k in range(32):
-                    if not(existOrNot(FULL_ALPHABET[k], alphabet)):
-                        alphabet[i][j] = FULL_ALPHABET[k]
-                        break
+    j = 0
+
+    # Заполняем таблицу сначала уникальными символами из ключа
+    while num < len(filteredKeyWord):
+        char = filteredKeyWord[num]
+        if char not in used_chars:
+            alphabet[i][j] = char
+            used_chars.add(char)
             j += 1
-        i += 1
+            if j == 8:  # Переход к следующему ряду
+                j = 0
+                i += 1
+        num += 1
+
+    # Заполняем оставшиеся ячейки оставшимися буквами алфавита
+    for char in FULL_ALPHABET:
+        if char not in used_chars:
+            alphabet[i][j] = char
+            used_chars.add(char)
+            j += 1
+            if j == 8:  # Переход к следующему ряду
+                j = 0
+                i += 1
+
     return alphabet
-
-
-
 
 def encode(originalStr, alphabet):
     encodeStr = ""
@@ -88,7 +89,6 @@ def encode(originalStr, alphabet):
 
     return encodeStr
 
-
 def decode(encodedStr, alphabet):
     decodeStr = ""
     # Сохраняем позиции пробелов
@@ -131,9 +131,6 @@ def decode(encodedStr, alphabet):
         decodeStr = decodeStr[:pos] + ' ' + decodeStr[pos:]
 
     return decodeStr
-
-
-
 
 currentAlphabet = setAlphabet((input("Напишите ключ-слово: ")).upper()) #Задаём алфавит
 
